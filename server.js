@@ -7,12 +7,12 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 const products = [
-    {  id: 1, name: 'Wireless Mouse', price: 14.99, category: 'accessories', stock: 25},
-    {  id: 1, name: 'Mechanical Keyboard', price: 50.5, category: 'accessories', stock: 8},
-    {  id: 1, name: 'USB-C Hub', price: 24, category: 'accessories', stock: 0},
-    {  id: 1, name: '24-Inch Monitor', price: 119.99, category: 'displays', stock: 5},
-    {  id: 1, name: 'Laptop Stand', price: 22.5, category: 'accessories', stock: 14},
-    {  id: 1, name: 'Webcam HD', price: 39.99, category: 'video', stock: 0}
+    {  id: 1, name: 'Corn', price: 19.99, category: 'food', stock: 25, img: '/corn.webp'},
+    {  id: 2, name: 'Apples', price: 39.99, category: 'food', stock: 8, img: '/apple.webp'},
+    {  id: 3, name: 'Broccoli', price: 29.99, category: 'food', stock: 0, img: '/broccoli.webp'},
+    {  id: 4, name: 'Tomatoes', price: 45.99, category: 'food', stock: 5, img: '/tomato.webp'},
+    {  id: 5, name: 'Bananas', price: 19.99, category: 'food', stock: 14, img: '/banana.webp'},
+    {  id: 6, name: 'Fertilizer', price: 39.99, category: 'farm', stock: 0, img: '/fertilizer.webp'}
 ]
 
 app.get('/api/health', (req,res) => {

@@ -16,10 +16,12 @@ async function showProducts(products) {
     }
     for (const product of products) { // It is a loop going through all the repositories in the array
         const item = document.createElement("li") // This creates a new HTML list element
-        const link = document.createElement("a") // This creates a new HTML link element
-        link.href = product.html_url; // This makes the URL go into the link element
-        link.textContent = `${product.name} - £${product.price.toFixed(2)} - ${product.category} (${product.stock > 0 ? 'In stock' : 'Sold out'})`; // This makes the repo name the links clickable text
-        item.append(link); // Puts the link inside the list item
+        item.className = "product-grids";
+        const img = document.createElement("img")
+        img.src = product.img;
+        img.alt = product.name;
+        item.append(img)
+        item.append(`${product.name} - £${product.price.toFixed(2)} - ${product.category} (${product.stock > 0 ? 'In stock' : 'Sold out'})`);
         list.append(item); // Adds the list onto the webpage
     }
 }
