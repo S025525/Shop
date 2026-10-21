@@ -1,5 +1,10 @@
 async function getProducts(){
-
+  const address = "http://localhost:3000/api/products";
+  const response = await fetch(address);
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+  return response.json();
 }
 
 async function showProducts(products) {
@@ -13,7 +18,7 @@ async function showProducts(products) {
         const item = document.createElement("li") // This creates a new HTML list element
         const link = document.createElement("a") // This creates a new HTML link element
         link.href = product.html_url; // This makes the URL go into the link element
-        link.textContent = product.name; // This makes the repo name the links clickable text
+        link.textContent = `${product.name} - £${product.price.toFixed(2)} - ${product.category} (${product.stock > 0 ? 'In stock' : 'Sold out'})`; // This makes the repo name the links clickable text
         item.append(link); // Puts the link inside the list item
         list.append(item); // Adds the list onto the webpage
     }
@@ -27,3 +32,4 @@ async function init(){
         document.querySelector("#products").textContent= "Sorry, The product could not be loaded"; // Show a error message on the webpage
     }
 }
+init();
