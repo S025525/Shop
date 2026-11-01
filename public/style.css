@@ -1,18 +1,28 @@
 body { font-family: Arial, sans-serif; max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
 li { margin-bottom: .5rem; }
 
-.product-grids{
-    background:  green;
-    padding: 20px;
-    border: 1px solid white;
-    border-radius: 10px;
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
     list-style: none;
-    color: rgb(255, 255, 21);
+    padding: 10px;
 }
 
-.grid{
-    display: grid;
-    grid-template-columns: auto auto;
-    background-color: white;
-    padding: 10px;
+.product-grids {
+    background-color: green;
+    color: yellow;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 120px;
+}
+
+.product-grids img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
 }
