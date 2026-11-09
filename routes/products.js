@@ -69,4 +69,32 @@ function parseId(value){
     return Number.isInteger(id) ? id :null;
 }
 
+router.post('/', (req, res) => {
+    const { name, price, category, stock = 0 } =
+        req.body ?? {};
+
+    if (typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ error: 'name is required' });
+    }
+    if (typeof price !== 'number' || price < 0) {
+        return res.status(400).json({
+          error: 'price must be a number, 0 or more'
+        });
+    }
+    if (typeof category !== 'string' ||
+        category.trim() === '') {
+      return res.status(400).json({ error: 'category is required' });
+    }
+
+  const product = {
+    id: nextId++,
+    name: name.trim(),
+    price,
+    category: category.trim(),
+    stock
+  };
+  products.push(product);
+  res.status(201).json(product);
+});
+
 module.exports=router;
