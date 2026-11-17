@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/S025525/Shop#readme",
   "dependencies": {
+    "better-sqlite3": "^13.2.0",
     "express": "^5.3.0"
   }
 }
