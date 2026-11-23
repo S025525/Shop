@@ -7,7 +7,8 @@ form.addEventListener('submit', async (event) => {
         name: document.getElementById('name').value,
         price: Number(document.getElementById('price').value),
         category: document.getElementById('category').value,
-        stock: Number(document.getElementById('stock').value)
+        stock: Number(document.getElementById('stock').value),
+        img: document.getElementById('image').value
     };
     try {
         const response = await fetch('/api/products', {

@@ -46,10 +46,19 @@ if (total === 0) {
   insertMany(products);
 }
 
-const products = db.prepare(
-  'SELECT * FROM products'
-).all();
+const products = db.prepare(`
+    SELECT * FROM products
+`).all();
 
-console.table(products);
+const formattedProducts = products.map(product => ({
+    ...product,
+    image: product.image
+        ? product.image.length > 35
+            ? product.image.substring(0, 35) + '...'
+            : product.image
+        : null
+}));
+
+console.table(formattedProducts);
 
 module.exports = db;
