@@ -16,8 +16,8 @@ app.get('/api/health', (req,res) => {
 })
 
 app.get('/', (req, res) => {
-    res.send('Hello from my shop!');
-})
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(PORT, () => {
     console.log(`Shop server running at http://localhost:${PORT}`);

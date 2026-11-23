@@ -1,100 +1,139 @@
-const express =require('express');
-const router= express.Router();
-let products = [
-    {  id: 1, name: 'Corn', price: 19.99, category: 'food', stock: 25, img: '/images/corn.webp'},
-    {  id: 2, name: 'Apples', price: 39.99, category: 'food', stock: 8, img: '/images/apples.webp'},
-    {  id: 3, name: 'Broccoli', price: 29.99, category: 'food', stock: 0, img: '/images/broccoli.webp'},
-    {  id: 4, name: 'Tomatoes', price: 45.99, category: 'food', stock: 5, img: '/images/tomatoes.webp'},
-    {  id: 5, name: 'Bananas', price: 19.99, category: 'food', stock: 14, img: '/images/bananas.webp'},
-    {  id: 6, name: 'Fertilizer', price: 39.99, category: 'farm', stock: 0, img: '/images/fertilizer.webp'}
-];
-let nextId=7;
 
+const express = require('express');
+const router = express.Router();
+
+// Connect to SQLite database
+const db = require('../db');
+
+// GET all products
 router.get('/', (req, res) => {
+    try {
+        const { category, maxPrice, sort } = req.query;
 
-    const { category, maxPrice, sort } = req.query;
+        let result = db.prepare(
+            'SELECT id, name, price, category, stock, image AS img FROM products'
+        ).all();
 
-    let result = [...products];
+        // Filter by category
+        if (category) {
+            result = result.filter(p => p.category === category);
+        }
 
-    if (category) {
-        result = result.filter(p => p.category === category);
+        // Filter by maximum price
+        if (maxPrice !== undefined) {
+            const price = Number(maxPrice);
+
+            if (!Number.isFinite(price)) {
+                return res.status(400).json({
+                    message: 'Invalid maxPrice'
+                });
+            }
+
+            result = result.filter(p => p.price <= price);
+        }
+
+        // Sort products
+        if (sort === 'price') {
+            result.sort((a, b) => a.price - b.price);
+        }
+
+        if (sort === 'name') {
+            result.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        res.json(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Failed to retrieve products'
+        });
     }
+});
 
-    if (maxPrice !== undefined) {
+// GET one product by ID
+router.get('/:id', (req, res) => {
+    try {
+        const id = Number(req.params.id);
 
-        const price = Number(maxPrice);
-
-        if (!Number.isFinite(price)) {
+        if (!Number.isInteger(id) || id < 1) {
             return res.status(400).json({
-                message: 'Invalid maxPrice'
+                message: 'ID must be a whole number'
             });
         }
 
-        result = result.filter(p => p.price <= price);
-    }
+        const product = db.prepare(
+            'SELECT id, name, price, category, stock, image AS img FROM products WHERE id = ?'
+        ).get(id);
 
-        if (sort === 'price') {
-        result.sort((a, b) => a.price - b.price);
-    }
+        if (!product) {
+            return res.status(404).json({
+                message: 'Product not found'
+            });
+        }
 
-    if (sort === 'name') {
-        result.sort((a, b) => a.name.localeCompare(b.name));
-    }
+        res.json(product);
 
-    res.json(result);
-});
-
-router.get('/:id', (req, res) => {
-    const id = parseId(req.params.id);
-
-    if (id === null) {
-        return res.status(400).json({
-            message: '400 Should be a whole number'
-        })
-    }
-
-    const product = products.find(p => p.id === id);
-
-    if (!product) {
-        return res.status(404).json({
-            message: '404 Product not found'
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Failed to retrieve product'
         });
     }
-
-    res.json(product);
 });
 
-function parseId(value){
-    const id = Number(value);
-    return Number.isInteger(id) ? id :null;
-}
-
+// ADD a new product
 router.post('/', (req, res) => {
-    const { name, price, category, stock = 0 } =
-        req.body ?? {};
+    try {
+        const { name, price, category, stock = 0, img } = req.body ?? {};
 
-    if (typeof name !== 'string' || name.trim() === '') {
-        return res.status(400).json({ error: 'name is required' });
-    }
-    if (typeof price !== 'number' || price < 0) {
-        return res.status(400).json({
-          error: 'price must be a number, 0 or more'
+        if (typeof name !== 'string' || name.trim() === '') {
+            return res.status(400).json({
+                error: 'Name is required'
+            });
+        }
+
+        if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
+            return res.status(400).json({
+                error: 'Price must be a valid positive number'
+            });
+        }
+
+        if (typeof category !== 'string' || category.trim() === '') {
+            return res.status(400).json({
+                error: 'Category is required'
+            });
+        }
+
+        if (!Number.isInteger(stock) || stock < 0) {
+            return res.status(400).json({
+                error: 'Stock must be a whole number of 0 or more'
+            });
+        }
+
+        const result = db.prepare(`
+            INSERT INTO products (name, price, category, stock, image)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(
+            name.trim(),
+            price,
+            category.trim(),
+            stock,
+            img || null
+        );
+
+        const product = db.prepare(
+            'SELECT id, name, price, category, stock, image AS img FROM products WHERE id = ?'
+        ).get(result.lastInsertRowid);
+
+        res.status(201).json(product);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Failed to add product'
         });
     }
-    if (typeof category !== 'string' ||
-        category.trim() === '') {
-      return res.status(400).json({ error: 'category is required' });
-    }
-
-  const product = {
-    id: nextId++,
-    name: name.trim(),
-    price,
-    category: category.trim(),
-    stock
-  };
-  products.push(product);
-  res.status(201).json(product);
 });
 
-module.exports=router;
+module.exports = router;
